@@ -1,0 +1,22 @@
+# Local development environment. Python 3.12 (dbt-metricflow and dowhy do not
+# yet support 3.14). Airflow itself runs in Docker (see airflow/), not here —
+# Airflow does not support native Windows.
+
+# transformation + warehouse
+dbt-core
+dbt-bigquery
+google-cloud-bigquery
+db-dtypes          # BigQuery -> pandas dataframes
+
+# semantic layer
+dbt-metricflow
+
+# causal analysis
+dowhy
+pandas
+
+# notebook execution
+nbformat
+nbclient
+ipykernel
+matplotlib
