@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  - name: ga4_raw
+    description: >
+      Daily GA4 event shards (events_YYYYMMDD) copied from
+      bigquery-public-data.ga4_obfuscated_sample_ecommerce into this project's
+      sandbox by the Airflow extract_day_partition task. Sharded, not
+      partitioned — queried via the events_* wildcard and _TABLE_SUFFIX.
+    database: "{{ env_var('GCP_PROJECT_ID') }}"
+    schema: ga4_raw
+    tables:
+      - name: events
+        identifier: events_* # wildcard over the daily shards
+        description: Raw GA4 export rows, one row per event, nested event_params/items arrays.

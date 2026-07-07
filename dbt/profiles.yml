@@ -1,0 +1,16 @@
+# BigQuery Sandbox connection.
+# Auth: OAuth via gcloud Application Default Credentials — run once:
+#   gcloud auth application-default login
+# Project id comes from the GCP_PROJECT_ID env var (see README / airflow/.env.example).
+campaign_attribution:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('GCP_PROJECT_ID') }}"
+      dataset: dbt_campaign_attribution
+      location: US # ga4_obfuscated_sample_ecommerce lives in the US multi-region
+      threads: 4
+      priority: interactive
+      job_execution_timeout_seconds: 300

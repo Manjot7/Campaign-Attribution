@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: analysis
+    description: >
+      Output tables written by the DoWhy causal analysis
+      (analysis/causal_model.py) via BigQuery load jobs. Not managed by dbt —
+      the causal_model pipeline step must run before models tagged
+      'causal_reporting' can build.
+    database: "{{ env_var('GCP_PROJECT_ID') }}"
+    schema: analysis
+    tables:
+      - name: causal_estimates
+        description: One row per (run, estimation method) with the ATE and the naive correlation.

@@ -1,0 +1,58 @@
+version: 2
+
+models:
+  - name: fct_sessions
+    description: >
+      Session-level analysis table for the causal model. One row per GA4
+      session with treatment flag (paid exposure), outcome flag (purchase
+      conversion), and confounders.
+    columns:
+      - name: session_key
+        tests:
+          - not_null
+          - unique
+      - name: session_date_key
+        description: YYYYMMDD integer partition key (integer-range partitioning — see model header).
+        tests: [not_null]
+      - name: is_paid
+        tests: [not_null]
+      - name: converted
+        tests: [not_null]
+      - name: device_category
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["desktop", "mobile", "tablet"]
+
+  - name: fct_causal_estimates
+    description: >
+      Latest DoWhy causal estimate per estimation method, from the
+      analysis.causal_estimates table written by analysis/causal_model.py.
+      Tagged causal_reporting — builds only after the causal step has run.
+    columns:
+      - name: method
+        tests:
+          - not_null
+          - unique
+      - name: ate
+        tests: [not_null]
+
+  - name: rpt_channel_performance
+    description: Dashboard-facing daily channel rollup (sessions, conversions, conversion rate, revenue).
+    columns:
+      - name: channel
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["paid", "organic", "referral", "direct", "other"]
+
+  - name: rpt_causal_summary
+    description: Dashboard-facing causal-vs-naive comparison, one row per estimate plus the naive-correlation row.
+    columns:
+      - name: estimate
+        tests:
+          - not_null
+          - unique
+      - name: conversion_lift
+        tests: [not_null]
