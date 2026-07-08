@@ -1,0 +1,70 @@
+version: 2
+
+semantic_models:
+  - name: sessions
+    description: Session-level GA4 activity — grain one row per session.
+    model: ref('fct_sessions')
+    defaults:
+      agg_time_dimension: session_date
+    entities:
+      - name: session
+        type: primary
+        expr: session_key
+    dimensions:
+      - name: session_date
+        type: time
+        type_params:
+          time_granularity: day
+      - name: device_category
+        type: categorical
+      - name: geo_country
+        type: categorical
+      - name: is_paid
+        type: categorical
+      - name: is_new_user
+        type: categorical
+      - name: first_touch_medium
+        type: categorical
+    measures:
+      - name: sessions
+        description: Count of sessions.
+        agg: count
+        expr: session_key
+      - name: conversions
+        description: Sessions containing a purchase event.
+        agg: sum
+        expr: cast(converted as int64)
+      - name: revenue_usd
+        description: Purchase revenue (USD).
+        agg: sum
+        expr: session_revenue_usd
+
+metrics:
+  - name: sessions
+    label: Sessions
+    description: Total sessions.
+    type: simple
+    type_params:
+      measure: sessions
+
+  - name: conversions
+    label: Conversions
+    description: Sessions with a purchase.
+    type: simple
+    type_params:
+      measure: conversions
+
+  - name: conversion_rate
+    label: Conversion rate
+    description: Purchase conversions per session.
+    type: ratio
+    type_params:
+      numerator: conversions
+      denominator: sessions
+
+  - name: revenue
+    label: Revenue (USD)
+    description: Total purchase revenue.
+    type: simple
+    type_params:
+      measure: revenue_usd

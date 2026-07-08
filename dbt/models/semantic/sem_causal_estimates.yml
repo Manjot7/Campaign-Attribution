@@ -1,0 +1,52 @@
+version: 2
+
+semantic_models:
+  - name: causal_estimates
+    description: >
+      Latest DoWhy causal estimates (one row per estimation method), written
+      by the causal_model pipeline step.
+    model: ref('fct_causal_estimates')
+    defaults:
+      agg_time_dimension: run_date
+    entities:
+      - name: causal_estimate
+        type: primary
+        expr: method
+    dimensions:
+      - name: run_date
+        type: time
+        type_params:
+          time_granularity: day
+      - name: method
+        type: categorical
+    measures:
+      - name: avg_ate
+        description: Average treatment effect of paid exposure on conversion.
+        agg: average
+        expr: ate
+      - name: avg_naive_difference
+        description: Raw paid-vs-unpaid conversion gap, no confounder adjustment.
+        agg: average
+        expr: naive_difference
+
+metrics:
+  - name: causal_lift_estimate
+    label: Causal conversion lift (ATE)
+    description: >
+      DoWhy propensity-score-matching estimate of the conversion lift caused
+      by paid exposure — the governed "true lift" number, to be read next to
+      naive_conversion_lift.
+    type: simple
+    type_params:
+      measure: avg_ate
+    filter: |
+      {{ Dimension('causal_estimate__method') }} = 'propensity_score_matching'
+
+  - name: naive_conversion_lift
+    label: Naive conversion lift (correlation)
+    description: Raw paid-vs-unpaid conversion gap with no adjustment — what a naive dashboard would report.
+    type: simple
+    type_params:
+      measure: avg_naive_difference
+    filter: |
+      {{ Dimension('causal_estimate__method') }} = 'propensity_score_matching'
