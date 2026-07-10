@@ -1,0 +1,30 @@
+# Minimal single-container Airflow for local development (standalone mode:
+# webserver + scheduler + SQLite in one process). Fine for this portfolio
+# pipeline; not a production layout.
+#
+#   cd airflow
+#   copy .env.example .env   (then fill in GCP_PROJECT_ID)
+#   docker compose up
+#
+# UI at http://localhost:8080 — standalone mode prints the admin password
+# on first boot (also written to simple_auth_manager_passwords.json.generated).
+services:
+  airflow:
+    image: apache/airflow:3.0.2
+    command: standalone
+    ports:
+      - "8080:8080"
+    environment:
+      GCP_PROJECT_ID: ${GCP_PROJECT_ID}
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      # Dev-only convenience; bake a proper image if this ever grows up.
+      # dowhy + dbt-metricflow make first boot slow but keep the setup simple.
+      _PIP_ADDITIONAL_REQUIREMENTS: "dbt-core dbt-bigquery google-cloud-bigquery db-dtypes dowhy pandas dbt-metricflow"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ../dbt:/opt/airflow/dbt
+      - ../analysis:/opt/airflow/analysis
+      # Reuse host gcloud Application Default Credentials inside the container.
+      # Requires `gcloud auth application-default login` on the host first.
+      - ${APPDATA}/gcloud:/home/airflow/.config/gcloud:ro
