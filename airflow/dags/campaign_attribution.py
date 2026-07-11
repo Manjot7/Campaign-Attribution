@@ -49,7 +49,7 @@ PIPELINE_ENV = {
     schedule="@daily",
     start_date=DATA_START,
     end_date=DATA_END,
-    catchup=False,  # flip to True (with max_active_runs=1) to backfill all 92 days
+    catchup=True,  # backfill every daily shard in the data window, one run at a time
     max_active_runs=1,
     default_args={"retries": 1},
     tags=["portfolio", "ga4", "dbt"],

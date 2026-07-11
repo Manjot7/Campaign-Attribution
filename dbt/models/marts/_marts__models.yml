@@ -29,6 +29,9 @@ models:
       Latest DoWhy causal estimate per estimation method, from the
       analysis.causal_estimates table written by analysis/causal_model.py.
       Tagged causal_reporting — builds only after the causal step has run.
+      The propensity_score_matching row is kept but flagged is_outlier with a
+      method_caveat (propensity ties make matching arbitrary at ~4% treated);
+      propensity_score_weighting is the governed estimator.
     columns:
       - name: method
         tests:
@@ -48,7 +51,10 @@ models:
                 values: ["paid", "organic", "referral", "direct", "other"]
 
   - name: rpt_causal_summary
-    description: Dashboard-facing causal-vs-naive comparison, one row per estimate plus the naive-correlation row.
+    description: >
+      Dashboard-facing causal-vs-naive comparison, one row per estimate plus
+      the naive-correlation row. The matching estimate stays visible with
+      is_outlier=true and its caveat so the dashboard can label it honestly.
     columns:
       - name: estimate
         tests:

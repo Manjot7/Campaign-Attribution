@@ -33,14 +33,19 @@ metrics:
   - name: causal_lift_estimate
     label: Causal conversion lift (ATE)
     description: >
-      DoWhy propensity-score-matching estimate of the conversion lift caused
+      DoWhy propensity-score-weighting estimate of the conversion lift caused
       by paid exposure — the governed "true lift" number, to be read next to
-      naive_conversion_lift.
+      naive_conversion_lift. Weighting (not matching) is the governed
+      estimator: with a small treated share and purely categorical
+      confounders, propensity scores collapse to a few tied values, so
+      nearest-neighbor matching becomes arbitrary; on the full window the
+      matching estimate is a +5.9pp outlier while weighting and
+      stratification agree near zero.
     type: simple
     type_params:
       measure: avg_ate
     filter: |
-      {{ Dimension('causal_estimate__method') }} = 'propensity_score_matching'
+      {{ Dimension('causal_estimate__method') }} = 'propensity_score_weighting'
 
   - name: naive_conversion_lift
     label: Naive conversion lift (correlation)
@@ -49,4 +54,4 @@ metrics:
     type_params:
       measure: avg_naive_difference
     filter: |
-      {{ Dimension('causal_estimate__method') }} = 'propensity_score_matching'
+      {{ Dimension('causal_estimate__method') }} = 'propensity_score_weighting'

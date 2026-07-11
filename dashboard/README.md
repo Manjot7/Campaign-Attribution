@@ -19,11 +19,22 @@ pick the view, keep default field types (`session_date` should come through as D
 
 **Row 1 — governed headline numbers** (scorecards from `Causal summary`):
 1. *Naive conversion lift* — `conversion_lift` filtered to `estimate = naive_correlation`
-2. *Causal conversion lift (ATE)* — `conversion_lift` filtered to `estimate = propensity_score_matching`
+2. *Causal conversion lift (ATE)* — `conversion_lift` filtered to
+   `estimate = propensity_score_weighting` (the governed estimator, matching
+   the semantic-layer `causal_lift_estimate` metric)
 3. Optional third scorecard: `n_sessions` for context.
 
-Put these two side by side — the gap between them *is* the story
-(selection effect vs true effect). Label them with `estimate_kind`.
+Put these two side by side — the (non-)gap between them *is* the story.
+Label them with `estimate_kind`.
+
+**Estimator comparison bar** (from `Causal summary`): bar chart of
+`conversion_lift` by `estimate`, all rows including
+`propensity_score_matching` — it is kept deliberately as a **flagged
+outlier** (`is_outlier`, `method_caveat` columns): with ~4% treated and
+purely categorical confounders, propensity scores collapse to a few tied
+values and nearest-neighbor matching picks arbitrarily among thousands of
+tied controls. Surface `method_caveat` in the chart tooltip or a text box —
+showing a diagnosed bad estimate next to the trusted one is the point.
 
 **Row 2 — channel performance** (from `Channel performance`):
 - Time series: `sessions` by `session_date`, breakdown dimension `channel`.
