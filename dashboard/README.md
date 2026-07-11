@@ -1,5 +1,9 @@
 # Dashboard: Channel Performance & Causal Lift
 
+**Live dashboard**: https://datastudio.google.com/s/iLgihv9VK9s
+
+![Dashboard overview](dashboard-overview.png)
+
 Looker Studio (free) over the BigQuery report views. Looker Studio dashboards
 are configured in the web UI, so this folder documents the exact setup; the
 queryable surface lives in dbt (`rpt_*` views), so the dashboard itself stays
