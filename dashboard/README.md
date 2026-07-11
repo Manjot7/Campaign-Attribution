@@ -24,8 +24,9 @@ pick the view, keep default field types (`session_date` should come through as D
    the semantic-layer `causal_lift_estimate` metric)
 3. Optional third scorecard: `n_sessions` for context.
 
-Put these two side by side — the (non-)gap between them *is* the story.
-Label them with `estimate_kind`.
+Put these two side by side — naive says paid looks worse (−0.38pp), the
+adjusted estimate says ~no effect (+0.16pp, CI spans zero): the raw gap is
+selection, not impact. Label them with `estimate_kind`.
 
 **Estimator comparison bar** (from `Causal summary`): bar chart of
 `conversion_lift` by `estimate`, all rows including

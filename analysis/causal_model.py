@@ -81,16 +81,26 @@ def naive_difference(df: pd.DataFrame) -> float:
     return float(grouped.get(1, float("nan")) - grouped.get(0, float("nan")))
 
 
+# With ~4% treated, propensity scores live in roughly [0.014, 0.062] — BELOW
+# dowhy's default min_ps_score=0.05 clip, which silently floors almost every
+# score and neutralizes the weighting (the "adjusted" estimate collapses to
+# ~the naive difference). Clip well below the observed range instead.
+PS_CLIP = {"min_ps_score": 0.001, "max_ps_score": 0.999}
+
+
 def estimate_ate(model_df: pd.DataFrame, confounders: list[str], method: str) -> float:
+    # dowhy mutates the dataframe (caches a propensity_score column), so each
+    # estimator gets its own copy — otherwise they contaminate each other.
     model = CausalModel(
-        data=model_df,
+        data=model_df.copy(),
         treatment="is_paid",
         outcome="converted",
         common_causes=confounders,
     )
     estimand = model.identify_effect(proceed_when_unidentifiable=True)
+    method_params = PS_CLIP if method.startswith("backdoor.propensity_score") else None
     estimate = model.estimate_effect(
-        estimand, method_name=method, target_units="ate"
+        estimand, method_name=method, target_units="ate", method_params=method_params
     )
     return float(estimate.value)
 
@@ -101,13 +111,16 @@ def refute_placebo(
     """Placebo treatment refuter: the ATE should collapse toward zero when the
     treatment is replaced with noise. Returns the placebo 'effect'."""
     model = CausalModel(
-        data=model_df,
+        data=model_df.copy(),
         treatment="is_paid",
         outcome="converted",
         common_causes=confounders,
     )
     estimand = model.identify_effect(proceed_when_unidentifiable=True)
-    estimate = model.estimate_effect(estimand, method_name=method, target_units="ate")
+    method_params = PS_CLIP if method.startswith("backdoor.propensity_score") else None
+    estimate = model.estimate_effect(
+        estimand, method_name=method, target_units="ate", method_params=method_params
+    )
     refutation = model.refute_estimate(
         estimand,
         estimate,

@@ -38,9 +38,9 @@ metrics:
       naive_conversion_lift. Weighting (not matching) is the governed
       estimator: with a small treated share and purely categorical
       confounders, propensity scores collapse to a few tied values, so
-      nearest-neighbor matching becomes arbitrary; on the full window the
-      matching estimate is a +5.9pp outlier while weighting and
-      stratification agree near zero.
+      nearest-neighbor matching becomes arbitrary — its estimate swings by
+      whole percentage points across windows and clip settings, while
+      weighting and stratification independently agree near zero.
     type: simple
     type_params:
       measure: avg_ate
